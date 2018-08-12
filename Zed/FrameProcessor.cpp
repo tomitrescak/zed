@@ -28,20 +28,19 @@ void FrameProcessor::staticDifference(int config[], cv::Mat & frame, cv::Mat & b
 
 void FrameProcessor::dilateDifference(int config[], cv::Mat & frame, cv::Mat & background, cv::Mat & result)
 {
-
-	cv::imshow("Background", background);
+	// cv::imshow("Background", background);
 
 	absdiff(frame, background, mask);
 
 	if (mask.channels() > 1)
 		cvtColor(mask, mask, CV_BGR2GRAY);
 	
-	// cv::GaussianBlur(mask, mask, cv::Size(5, 5), 3.5, 3.5);
+	cv::GaussianBlur(mask, mask, cv::Size(5, 5), 3.5, 3.5);
 
 	threshold(mask, mask, config[0], 255, cv::THRESH_BINARY);
 
-	//cv::dilate(mask, mask, cv::Mat(), cv::Size(-1, -1), config[3]);
-	//cv::erode(mask, mask, cv::Mat(), cv::Size(-1, -1), config[2]);
+	cv::dilate(mask, mask, cv::Mat(), cv::Size(-1, -1), config[3]);
+	cv::erode(mask, mask, cv::Mat(), cv::Size(-1, -1), config[2]);
 
 	zeros.copyTo(result);
 	frame.copyTo(result, mask);

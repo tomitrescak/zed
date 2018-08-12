@@ -67,9 +67,12 @@ int main() {
 
         if (zed.grab()) {
 
-			cv::imshow("Image", zed.result_left_ocv);
-            cv::waitKey(10);
+			// cv::imshow("Image", zed.result_left_ocv);
+            // cv::waitKey(10);
+			cv::imshow("Left", zed.result_left_ocv);
+			cv::imshow("Right", zed.result_right_ocv);
 
+			cv::waitKey(10);
 			pfps();
         }
     }

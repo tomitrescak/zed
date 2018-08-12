@@ -150,17 +150,23 @@ namespace Core
 				processor->dilateDifference(config, frame_color_right_ocv, background_color_right_ocv, result_right_ocv);
 			}
 
+			// contrast
+			if (config[4] != 0) {
+				result_left_ocv.convertTo(result_left_ocv, -1, config[4] / (float) 50, 0);
+				result_right_ocv.convertTo(result_right_ocv, -1, config[4] / (float) 50, 0);
+			}
+
 
 			// Retrieve the RGBA point cloud in half-resolution
 			// To learn how to manipulate and display point clouds, see Depth Sensing sample
 			// zed.retrieveMeasure(point_cloud, MEASURE_XYZRGBA, MEM_CPU, new_width, new_height);
 
 			// Display image and depth using cv:Mat which share sl:Mat data
-			cv::imshow("Left", result_left_ocv);
-			cv::imshow("Right", result_right_ocv);
+			// cv::imshow("Left", result_left_ocv);
+			// cv::imshow("Right", result_right_ocv);
 
 			// Handle key event
-			cv::waitKey(10);
+			
 			return true;
 		}
 
