@@ -35,7 +35,7 @@ namespace ZedTester
         private Gray max = new Gray(255);
         private float saturation;
         private float contrast;
-        private bool initialised;
+        private bool serverInititalised;
         
         private Wrapper wrapper;
 
@@ -73,8 +73,6 @@ namespace ZedTester
 
             this.UpdateViews(null, null);
 
-            this.initialised = true;
-
             // update tracks 
         }
 
@@ -91,23 +89,6 @@ namespace ZedTester
 
         void LogServerMessage(string message)
         {
-            if (!this.Created)
-            {
-                new System.Threading.Thread(() =>
-                {
-                    while (!this.Created && !this.initialised)
-                    {
-                        System.Threading.Thread.Sleep(1);
-                    }
-                    this.statusStrip1.BeginInvoke((MethodInvoker)delegate
-                    {
-                        this.serverMessage.Text = message;
-                    });
-
-                }).Start();
-                return;
-            }
-
             this.statusStrip1.BeginInvoke((MethodInvoker)delegate
             {
                 this.serverMessage.Text = message;
@@ -122,7 +103,7 @@ namespace ZedTester
         void Start()
         {
             // start an image server
-            this.server = new ImageServer(this.LogServerMessage);
+            
             this.running = true;
 
             // start with stored SVO
@@ -138,6 +119,11 @@ namespace ZedTester
                 {
                     if (wrapper.grab())
                     {
+                        if (!this.serverInititalised)
+                        {
+                            this.server = new ImageServer(this.LogServerMessage);
+                            this.serverInititalised = true;
+                        }
 
                         IntPtr leftPointer = wrapper.GetLeft();                       
                         if (leftPointer != IntPtr.Zero)
