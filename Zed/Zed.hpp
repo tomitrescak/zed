@@ -36,12 +36,23 @@ namespace Core
 		cv::Mat background_depth_right_ocv;
 		cv::Mat result_right_ocv;
 
+		// cuda experiment
+
+		sl::Mat *frame_left_zed_gpu;
+		cv::cuda::GpuMat frame_left_cuda;
+
+		sl::Mat *frame_right_zed_gpu;
+		cv::cuda::GpuMat frame_right_cuda;
+
+		cv::cuda::GpuMat background_left_cuda;
+		cv::cuda::GpuMat background_right_cuda;
+
 		int new_width;
 		int new_height;
 		bool init = false;
 		bool sideBySide = false;
 		bool processDepth = false;
-		int config[5] = { 100, 150, 12, 10, 5 };
+		int config[5] = { 100, 150, 12, 10, 0 };
 	private:
 		sl::Mat img;
 		void init_processor();

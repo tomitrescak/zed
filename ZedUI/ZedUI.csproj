@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ZedExec|AnyCPU'">
+    <OutputPath>bin\ZedExec\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Emgu.CV.UI">
       <HintPath>..\..\..\..\..\..\..\..\..\Libraries\Emgu\emgucv-windesktop 3.3.0.2824\bin\Emgu.CV.UI.dll</HintPath>
