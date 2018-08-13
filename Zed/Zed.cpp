@@ -26,13 +26,10 @@ namespace Core
 	{
 		// cuda
 
-		/*frame_left_cuda.copyTo(background_left_cuda);
-		frame_right_cuda.copyTo(background_right_cuda);
-
-		cv::imwrite("left_color.tiff", background_left_cuda);
-		cv::imwrite("right_color.tiff", background_right_cuda);
-
-		return;*/
+		if (cuda) {
+			frame_left_cuda.copyTo(background_left_cuda);
+			frame_right_cuda.copyTo(background_right_cuda);
+		}
 
 		// normal
 
@@ -69,8 +66,28 @@ namespace Core
 		sl::DEPTH_MODE depth = static_cast<sl::DEPTH_MODE>(setup[1]);
 		sl::SENSING_MODE sensing = static_cast<sl::SENSING_MODE>(setup[2]);
 		sideBySide = setup[3] == 1;
+		cuda = setup[3] == 2;
 		processDepth = depth != sl::DEPTH_MODE_NONE;
 		int sizeDivision = sideBySide ? 1 : 2;
+
+		std::cout << "Configuration" << std::endl;
+		std::cout << "------------------------" << std::endl;
+		std::cout << "Resolution: ";
+		std::cout << resolution << std::endl;
+		std::cout << "Depth: ";
+		std::cout << depth << std::endl;
+		std::cout << "Sensing: ";
+		std::cout << sensing << std::endl;
+		
+
+		if (processDepth) {
+			std::cout << "Processing depth" << std::endl;
+		}
+		if (cuda) {
+			std::cout << "Using CUDA" << std::endl;
+		}
+
+		std::cout << "------------------------" << std::endl;
 
 		// Set configuration parameters
 		sl::InitParameters init_params;
@@ -142,64 +159,25 @@ namespace Core
 	{
 	}
 
-	cv::Ptr<cv::cuda::Filter> filter =
-		cv::cuda::createGaussianFilter(CV_8UC4, CV_8UC4, cv::Size(5, 5), 3.5, 3.5);
-
 	bool Zed::grab()
 	{
 		if (zed.grab(runtime_parameters) == sl::SUCCESS) {
 			
 			// cuda experiment
-			
 
 			/*zed.retrieveImage(*frame_left_zed_gpu, VIEW_LEFT, MEM_GPU, new_width, new_height);
-			zed.retrieveImage(*frame_right_zed_gpu, VIEW_RIGHT, MEM_GPU, new_width, new_height);
-
-			cv::cuda::absdiff(frame_left_cuda, frame_right_cuda, mask);*/
+			zed.retrieveImage(*frame_right_zed_gpu, VIEW_RIGHT, MEM_GPU, new_width, new_height);*/
 
 			// Retrieve the left image, depth image in half-resolution
 			
 			zed.retrieveImage(*frame_left_zed, sl::VIEW_LEFT, sl::MEM_CPU, new_width, new_height);
 			zed.retrieveImage(*frame_right_zed, sl::VIEW_RIGHT, sl::MEM_CPU, new_width, new_height);
 			
-			// CUDA EXPERIMETNT
-			frame_left_cuda.upload(frame_color_left_ocv);
-			frame_right_cuda.upload(frame_color_right_ocv);
-
-			if (!init) {
-				this->processor = new FrameProcessor{ new_height, new_width };
-				frame_left_cuda.copyTo(background_left_cuda);
-				frame_right_cuda.copyTo(background_right_cuda);
-				init = true;
-				return false;
+			if (cuda) {
+				frame_left_cuda.upload(frame_color_left_ocv);
+				frame_right_cuda.upload(frame_color_right_ocv);
 			}
 
-			this->processor->gpuDifference(config, frame_left_cuda, background_left_cuda, result_left_ocv);
-
-			//// difference
-			//cv::cuda::absdiff(frame_left_cuda, background_left_cuda, mask);		
-			//
-			//// gaussian
-			//filter->apply(mask, mask);
-
-			//// convert to greyscale
-			//cv::cuda::cvtColor(mask, mask, cv::COLOR_RGBA2GRAY);
-
-			//// threshold
-			//cv::cuda::threshold(mask, mask, config[0], 255, cv::THRESH_BINARY);
-
-			////  dilate erode
-			//cv::Ptr<cv::cuda::Filter> dilateFilter = cv::cuda::createMorphologyFilter(cv::MORPH_DILATE, mask.type(), cv::Mat(), cv::Size(-1, -1), config[3]);
-			//dilateFilter->apply(mask, mask);
-
-			//cv::Ptr<cv::cuda::Filter> erodeFilter = cv::cuda::createMorphologyFilter(cv::MORPH_ERODE, mask.type(), cv::Mat(), cv::Size(-1, -1), config[2]);
-			//dilateFilter->apply(mask, mask);
-
-			//cv::Mat m;
-			//mask.download(m);
-			//cv::imshow("Cuda", m);
-
-			return true;
 
 			// myFrame.upload(frame_color_left_ocv);
 
@@ -216,10 +194,17 @@ namespace Core
 				return false;
 			}
 
+			
 			if (processDepth) {
 				processor->depthDifference(config, frame_color_left_ocv, background_color_left_ocv, frame_depth_left_ocv, background_depth_left_ocv, result_left_ocv);
 				processor->depthDifference(config, frame_color_right_ocv, background_color_right_ocv, frame_depth_right_ocv, background_depth_right_ocv, result_right_ocv);
 			}
+			else if (cuda) {
+
+				//processor->gpuDifference2(config, frame_left_cuda, background_left_cuda, frame_right_cuda, background_right_cuda, result_left_ocv, result_right_ocv);
+				processor->gpuDifference(config, frame_left_cuda, background_left_cuda, result_left_ocv);
+				processor->gpuDifference(config, frame_right_cuda, background_right_cuda, result_right_ocv);
+			} 
 			else {
 				processor->dilateDifference(config, frame_color_left_ocv, background_color_left_ocv, result_left_ocv);
 				processor->dilateDifference(config, frame_color_right_ocv, background_color_right_ocv, result_right_ocv);
@@ -311,6 +296,11 @@ void * create_zed(int setup[])
 
 void init_camera(void * zed, int setup[], std::string svo)
 {
+}
+
+void hello()
+{
+	std::cout << "Hello" << std::endl;
 }
 
 void destroy_zed(void * zed)

@@ -53,10 +53,11 @@ void FrameProcessor::dilateDifference(int config[], cv::Mat & frame, cv::Mat & b
 	frame.copyTo(result, mask);
 }
 
-cv::Ptr<cv::cuda::Filter> filter = cv::cuda::createGaussianFilter(CV_8UC4, CV_8UC4, cv::Size(5, 5), 3.5, 3.5);
+
 
 void FrameProcessor::gpuDifference(int config[], cv::cuda::GpuMat & frame, cv::cuda::GpuMat & background, cv::Mat & result)
 {
+	cv::Ptr<cv::cuda::Filter> filter = cv::cuda::createGaussianFilter(CV_8UC4, CV_8UC4, cv::Size(5, 5), 3.5, 3.5);
 	cv::cuda::absdiff(frame, background, maskGpu);
 
 	// gaussian
@@ -73,19 +74,63 @@ void FrameProcessor::gpuDifference(int config[], cv::cuda::GpuMat & frame, cv::c
 	dilateFilter->apply(maskGpu, maskGpu);
 
 	cv::Ptr<cv::cuda::Filter> erodeFilter = cv::cuda::createMorphologyFilter(cv::MORPH_ERODE, mask.type(), cv::Mat(), cv::Size(-1, -1), config[2]);
-	dilateFilter->apply(maskGpu, maskGpu);
+	erodeFilter->apply(maskGpu, maskGpu);
 
 	zerosGpu.copyTo(resultGpu);
 	frame.copyTo(resultGpu, maskGpu);
 
 	resultGpu.download(result);
-	/*frame.download(result);
-
-	result.copyTo(result, mask);*/
-
-	cv::imshow("Mask", result);
-	//cv::imshow("Cuda", result);
 }
+
+//void FrameProcessor::gpuDifference2(int config[], cv::cuda::GpuMat & left, cv::cuda::GpuMat & left_background, cv::cuda::GpuMat & right, cv::cuda::GpuMat & right_background, cv::Mat & result_left, cv::Mat & result_right)
+//{
+//	cv::cuda::absdiff(left, left_background, maskGpu);
+//
+//	// gaussian
+//	filter->apply(maskGpu, maskGpu);
+//
+//	// convert to greyscale
+//	cv::cuda::cvtColor(maskGpu, maskGpu, cv::COLOR_RGBA2GRAY);
+//
+//	// threshold
+//	cv::cuda::threshold(maskGpu, maskGpu, config[0], 255, cv::THRESH_BINARY);
+//
+//	//  dilate erode
+//	cv::Ptr<cv::cuda::Filter> dilateFilter = cv::cuda::createMorphologyFilter(cv::MORPH_DILATE, mask.type(), cv::Mat(), cv::Size(-1, -1), config[3]);
+//	dilateFilter->apply(maskGpu, maskGpu);
+//
+//	cv::Ptr<cv::cuda::Filter> erodeFilter = cv::cuda::createMorphologyFilter(cv::MORPH_ERODE, mask.type(), cv::Mat(), cv::Size(-1, -1), config[2]);
+//	erodeFilter->apply(maskGpu, maskGpu);
+//
+//	zerosGpu.copyTo(resultGpu);
+//	left.copyTo(resultGpu, maskGpu);
+//
+//	resultGpu.download(result_left);
+//
+//	// RIGHT
+//
+//	cv::cuda::absdiff(right, right_background, maskGpu);
+//
+//	// gaussian
+//	filter->apply(maskGpu, maskGpu);
+//
+//	// convert to greyscale
+//	cv::cuda::cvtColor(maskGpu, maskGpu, cv::COLOR_RGBA2GRAY);
+//
+//	// threshold
+//	cv::cuda::threshold(maskGpu, maskGpu, config[0], 255, cv::THRESH_BINARY);
+//
+//	dilateFilter = cv::cuda::createMorphologyFilter(cv::MORPH_DILATE, mask.type(), cv::Mat(), cv::Size(-1, -1), config[3]);
+//	dilateFilter->apply(maskGpu, maskGpu);
+//
+//	erodeFilter = cv::cuda::createMorphologyFilter(cv::MORPH_ERODE, mask.type(), cv::Mat(), cv::Size(-1, -1), config[2]);
+//	erodeFilter->apply(maskGpu, maskGpu);
+//
+//	zerosGpu.copyTo(resultGpu);
+//	right.copyTo(resultGpu, maskGpu);
+//
+//	resultGpu.download(result_right);
+//}
 
 void FrameProcessor::depthDifference(int config[], cv::Mat & frame, cv::Mat & background_color, cv::Mat & depth, cv::Mat & background_depth, cv::Mat & result)
 {

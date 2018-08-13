@@ -54,7 +54,7 @@ namespace ZedTester
         {
             InitializeComponent();
 
-            int[] setup = { 1, 0, 0, 0, 0 };
+            int[] setup = { 1, 0, 0, 2, 0 };
 
             wrapper = new Wrapper(setup, null);
             // z.InitCamera(setup, null);

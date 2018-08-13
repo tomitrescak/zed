@@ -51,8 +51,9 @@ namespace Core
 		int new_height;
 		bool init = false;
 		bool sideBySide = false;
+		bool cuda = false;
 		bool processDepth = false;
-		int config[5] = { 100, 150, 12, 10, 0 };
+		int config[5] = { 100, 150, 3, 7, 0 };
 	private:
 		sl::Mat img;
 		void init_processor();
@@ -96,4 +97,6 @@ extern "C"
 	__declspec(dllexport) void __cdecl reset_background(void* zed);
 
 	__declspec(dllexport) void __cdecl setup(void* zed, int setup[]);
+
+	__declspec(dllexport) void __cdecl hello();
 }

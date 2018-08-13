@@ -15,6 +15,9 @@ namespace ZedTester
         public static extern IntPtr create_zed(int[] setup);
 
         [DllImport("Zed.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void hello();
+
+        [DllImport("Zed.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void destroy_zed(IntPtr instance);
 
         [DllImport("Zed.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -37,11 +40,8 @@ namespace ZedTester
 
         public Wrapper(int[] config, string svo)
         {
-            string p = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var path = Path.Combine(p, "Zed.dll");
-            var m = File.Exists(Path.Combine(p, "Zed.dll"));
-            int[] setup = { 1, 0, 0, 0, 0 };
-            __instance = create_zed(setup);
+            // int[] setup = { 1, 0, 0, 2, 0 };
+            __instance = create_zed(config);
         }
 
         public void cleanup()
