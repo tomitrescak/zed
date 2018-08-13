@@ -44,6 +44,9 @@ namespace Core
 		sl::Mat *frame_right_zed_gpu;
 		cv::cuda::GpuMat frame_right_cuda;
 
+		cv::cuda::GpuMat depth_left_cuda;
+		cv::cuda::GpuMat depth_right_cuda;
+
 		cv::cuda::GpuMat background_left_cuda;
 		cv::cuda::GpuMat background_right_cuda;
 

@@ -261,3 +261,5 @@ __pycache__/
 *.pyc
 Zed/left_color.tiff
 Zed/right_color.tiff
+Zed/left_depth.tiff
+Zed/right_depth.tiff

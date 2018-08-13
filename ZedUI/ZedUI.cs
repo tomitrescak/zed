@@ -54,7 +54,7 @@ namespace ZedTester
         {
             InitializeComponent();
 
-            int[] setup = { 1, 0, 0, 2, 0 };
+            int[] setup = { 1, 0, 1, 2, 0 };
 
             wrapper = new Wrapper(setup, null);
             // z.InitCamera(setup, null);
@@ -115,6 +115,9 @@ namespace ZedTester
         }
 
         bool running;
+        int stride = 960 * 4;
+        Image<Bgra, byte> left;
+        Image<Bgra, byte> right;
 
         void Start()
         {
@@ -136,14 +139,25 @@ namespace ZedTester
                     if (wrapper.grab())
                     {
 
-                        IntPtr color = wrapper.GetLeft();
-                        int stride = 960 * 4;
-
-                        if (color != IntPtr.Zero)
+                        IntPtr leftPointer = wrapper.GetLeft();                       
+                        if (leftPointer != IntPtr.Zero)
                         {
-                            Image<Bgra, byte> img = new Image<Bgra, byte>(960, 540, stride, color);
-                            this.AcquireImages(img, img);
+                            left = new Image<Bgra, byte>(960, 540, stride, leftPointer);
                             // img = new Mat(new System.Drawing.Size(960, 540), DepthType.Cv8U, 4, color, stride);
+                        }
+                        IntPtr rightPointer = wrapper.GetRight();
+                        if (rightPointer != IntPtr.Zero)
+                        {
+                            right = new Image<Bgra, byte>(960, 540, stride, rightPointer);
+                            // img = new Mat(new System.Drawing.Size(960, 540), DepthType.Cv8U, 4, color, stride);
+                        }
+
+                        if (left != null && right != null)
+                        {
+                            this.AcquireImages(left, right);
+                        } else if (left != null)
+                        {
+                            this.AcquireImages(left, left);
                         }
                         // img.Save("test.jpg");
                         // CvInvoke.Imshow(win1, img); //Show the image

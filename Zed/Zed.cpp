@@ -94,7 +94,10 @@ namespace Core
 		init_params.camera_resolution = resolution;
 		init_params.depth_mode = depth; // DEPTH_MODE_PERFORMANCE;
 		init_params.coordinate_units = sl::UNIT_METER;
-		// init_params.enable_right_side_measure = true;
+
+		if (processDepth) {
+			init_params.enable_right_side_measure = true;
+		}
 
 		/*if (!svo.empty()) {
 			init_params.svo_input_filename.set(svo.c_str());
@@ -181,9 +184,14 @@ namespace Core
 
 			// myFrame.upload(frame_color_left_ocv);
 
-			if (processDepth) {
+			if (processDepth && config[0] != 0) {
 				zed.retrieveImage(*depth_image_left_zed, sl::VIEW_DEPTH, sl::MEM_CPU, new_width, new_height);
-				zed.retrieveImage(*depth_image_right_zed, sl::VIEW_DEPTH, sl::MEM_CPU, new_width, new_height);
+				zed.retrieveImage(*depth_image_right_zed, sl::VIEW_DEPTH_RIGHT, sl::MEM_CPU, new_width, new_height);
+
+				if (cuda) {
+					depth_left_cuda.upload(frame_depth_left_ocv);
+					depth_right_cuda.upload(frame_depth_right_ocv);
+				}
 			}
 
 			if (!init) {
@@ -194,21 +202,27 @@ namespace Core
 				return false;
 			}
 
-			
-			if (processDepth) {
-				processor->depthDifference(config, frame_color_left_ocv, background_color_left_ocv, frame_depth_left_ocv, background_depth_left_ocv, result_left_ocv);
-				processor->depthDifference(config, frame_color_right_ocv, background_color_right_ocv, frame_depth_right_ocv, background_depth_right_ocv, result_right_ocv);
+			if (cuda) {
+				if (processDepth && config[0] != 0) {
+					//processor->gpuDifference2(config, frame_left_cuda, background_left_cuda, frame_right_cuda, background_right_cuda, result_left_ocv, result_right_ocv);
+					processor->gpuDepthDifference(config, frame_left_cuda, background_left_cuda, depth_left_cuda, result_left_ocv);
+					processor->gpuDepthDifference(config, frame_right_cuda, background_right_cuda, depth_right_cuda, result_right_ocv);
+				}
+				else {
+					processor->gpuDifference(config, frame_left_cuda, background_left_cuda, result_left_ocv);
+					processor->gpuDifference(config, frame_right_cuda, background_right_cuda, result_right_ocv);
+				}
 			}
-			else if (cuda) {
-
-				//processor->gpuDifference2(config, frame_left_cuda, background_left_cuda, frame_right_cuda, background_right_cuda, result_left_ocv, result_right_ocv);
-				processor->gpuDifference(config, frame_left_cuda, background_left_cuda, result_left_ocv);
-				processor->gpuDifference(config, frame_right_cuda, background_right_cuda, result_right_ocv);
-			} 
 			else {
-				processor->dilateDifference(config, frame_color_left_ocv, background_color_left_ocv, result_left_ocv);
-				processor->dilateDifference(config, frame_color_right_ocv, background_color_right_ocv, result_right_ocv);
-			}
+				if (processDepth && config[0] != 0) {
+					processor->depthDifference(config, frame_color_left_ocv, background_color_left_ocv, frame_depth_left_ocv, background_depth_left_ocv, result_left_ocv);
+					processor->depthDifference(config, frame_color_right_ocv, background_color_right_ocv, frame_depth_right_ocv, background_depth_right_ocv, result_right_ocv);
+				}
+				else {
+					processor->dilateDifference(config, frame_color_left_ocv, background_color_left_ocv, result_left_ocv);
+					processor->dilateDifference(config, frame_color_right_ocv, background_color_right_ocv, result_right_ocv);
+				}
+			}		
 
 			// contrast
 			if (config[4] != 0) {
