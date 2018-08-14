@@ -62,12 +62,72 @@ namespace ZedTester.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public float Contrast {
+        public int Contrast {
             get {
-                return ((float)(this["Contrast"]));
+                return ((int)(this["Contrast"]));
             }
             set {
                 this["Contrast"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int Resolution {
+            get {
+                return ((int)(this["Resolution"]));
+            }
+            set {
+                this["Resolution"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DepthQuality {
+            get {
+                return ((int)(this["DepthQuality"]));
+            }
+            set {
+                this["DepthQuality"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int DepthMode {
+            get {
+                return ((int)(this["DepthMode"]));
+            }
+            set {
+                this["DepthMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int Other {
+            get {
+                return ((int)(this["Other"]));
+            }
+            set {
+                this["Other"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int Depth {
+            get {
+                return ((int)(this["Depth"]));
+            }
+            set {
+                this["Depth"] = value;
             }
         }
     }

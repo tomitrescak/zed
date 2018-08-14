@@ -19,8 +19,6 @@ namespace ZedTester
     public partial class ZedUI : Form
     {
         int fps = 0;
-        int erode = 3;
-        int dilate = 20;
 
         string fpsLabelValue = "0 FPS";
         DateTime currentTime;
@@ -29,14 +27,7 @@ namespace ZedTester
         Emgu.CV.Image<Bgra, byte> finalRight;
         ImageServer server;
 
-        private Gray threshold = new Gray(20);
-        private Gray thresholdDepth = new Gray(20);
-
-        private Gray max = new Gray(255);
-        private float saturation;
-        private float contrast;
         private bool serverInititalised;
-        
         private Wrapper wrapper;
 
         // controls
@@ -56,22 +47,19 @@ namespace ZedTester
 
             int[] setup = { 1, 0, 1, 2, 0 };
 
-            wrapper = new Wrapper(setup, null);
-            // z.InitCamera(setup, null);
-
+           
             // init settings
-            this.threshold = new Gray(Properties.Settings.Default.Threshold);
-            this.thresholdTrack.Value = (int)this.threshold.Intensity;
-            this.erodeTrack.Value = this.erode = Properties.Settings.Default.Erode;
-            this.dilateTrack.Value = this.dilate = Properties.Settings.Default.Dilate;
-            this.contrast = Properties.Settings.Default.Contrast;
-            this.contrastTrack.Value = (int)((this.contrast > 3 ? 1.5 : this.contrast) * 50);
+            this.thresholdTrack.Value = Properties.Settings.Default.Threshold;
+            this.erodeTrack.Value = Properties.Settings.Default.Erode;
+            this.dilateTrack.Value = Properties.Settings.Default.Dilate;
+            this.contrastTrack.Value = (int) Properties.Settings.Default.Contrast;
+            this.resolution.SelectedIndex = Properties.Settings.Default.Resolution;
+            this.depthQuality.SelectedIndex = Properties.Settings.Default.DepthQuality;
+            this.depthMode.SelectedIndex = Properties.Settings.Default.DepthMode;
 
-            this.Start();
+            this.startZed();
 
             this.currentTime = DateTime.Now;
-
-            this.UpdateViews(null, null);
 
             // update tracks 
         }
@@ -221,21 +209,25 @@ namespace ZedTester
         {
             var config = new int[]
             {
-                this.thresholdTrack.Value,
-                this.depthTrack.Value,
-                this.erodeTrack.Value,
-                this.dilateTrack.Value,
-                this.contrastTrack.Value
+                Properties.Settings.Default.Threshold,
+                Properties.Settings.Default.Depth,
+                Properties.Settings.Default.Erode,
+                Properties.Settings.Default.Dilate,
+                Properties.Settings.Default.Contrast
             };
+
+            Properties.Settings.Default.Save();
+
             if (this.wrapper != null)
             {
                 this.wrapper.Setup(config);
             }
+            
         }
 
         private void thresholdValueBox_TextChanged(object sender, EventArgs e)
         {
-            this.threshold = new Gray(this.thresholdTrack.Value);
+            Properties.Settings.Default.Threshold = this.thresholdTrack.Value;
             this.toolTipThreshold.SetToolTip(this.thresholdTrack, this.thresholdTrack.Value.ToString());
 
             this.setup();
@@ -243,7 +235,7 @@ namespace ZedTester
 
         private void depthValueBox_TextChanged(object sender, EventArgs e)
         {
-            this.thresholdDepth = new Gray(this.depthTrack.Value);
+            Properties.Settings.Default.Depth = this.depthTrack.Value;
             this.depthToolTip.SetToolTip(this.depthTrack, this.depthTrack.Value.ToString());
 
             this.setup();
@@ -251,7 +243,7 @@ namespace ZedTester
 
         private void erodeBox_TextChanged(object sender, EventArgs e)
         {
-            this.erode = this.erodeTrack.Value;
+            Properties.Settings.Default.Erode = this.erodeTrack.Value;
             this.erodeToolTip.SetToolTip(this.erodeTrack, this.erodeTrack.Value.ToString());
 
             this.setup();
@@ -259,7 +251,7 @@ namespace ZedTester
 
         private void dilateBox_TextChanged(object sender, EventArgs e)
         {
-            this.dilate = this.dilateTrack.Value;
+            Properties.Settings.Default.Dilate = this.dilateTrack.Value;
             this.dilateToolTip.SetToolTip(this.dilateTrack, this.dilateTrack.Value.ToString());
 
             this.setup();
@@ -267,33 +259,14 @@ namespace ZedTester
 
         private void contrast_TextChanged(object sender, EventArgs e)
         {
-            this.contrast = this.contrastTrack.Value / 50f;
-            this.contrastToolTip.SetToolTip(this.contrastTrack, this.contrast.ToString());
+            Properties.Settings.Default.Contrast = this.contrastTrack.Value;
+            this.contrastToolTip.SetToolTip(this.contrastTrack, this.contrastTrack.Value.ToString());
 
             this.setup();
         }
 
-        private void UpdateViews(object sender, EventArgs e)
-        {
-            int rowCount = 0;
-
-            //this.tableLayoutViews.RowCount = 0;
-
-            //this.tableLayoutViews.RowStyles[0].Height = this.showBackground.Checked ? 50 : 0;
-            //this.tableLayoutViews.RowStyles[1].Height = this.showInput.Checked ? 50 : 0;
-            //this.tableLayoutViews.RowStyles[2].Height = this.showMask.Checked ? 50 : 0;
-            //this.tableLayoutViews.RowStyles[3].Height = this.showDepth.Checked ? 50 : 0;
-            //this.tableLayoutViews.RowStyles[4].Height = this.showOutput.Checked ? 50 : 0;
-
-        }
-
         private void SaveSettings(object sender, FormClosingEventArgs e)
         {
-
-            Properties.Settings.Default.Erode = this.erode;
-            Properties.Settings.Default.Dilate = this.dilate;
-            Properties.Settings.Default.Contrast = this.contrast;
-            Properties.Settings.Default.Threshold = (int)this.threshold.Intensity;
             Properties.Settings.Default.Save();
         }
 
@@ -301,6 +274,58 @@ namespace ZedTester
 
         private void sourceSelection_SelectedIndexChanged(object sender, EventArgs e)
         {
+        }
+
+        
+
+        private void startZed()
+        {
+            int[] setup = {
+                Properties.Settings.Default.Resolution,
+                Properties.Settings.Default.DepthQuality,
+                Properties.Settings.Default.DepthMode,
+                Properties.Settings.Default.Other,
+                0
+            };
+
+            this.wrapper = new Wrapper(setup, null);
+            this.Start();
+        }
+
+        private void resolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Resolution = this.resolution.SelectedIndex;
+            Properties.Settings.Default.Save();
+
+            this.running = false;
+            if (this.wrapper != null)
+            {
+                this.wrapper.cleanup();
+            }
+        }
+
+        private void depthQuality_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.DepthQuality = this.depthQuality.SelectedIndex;
+            Properties.Settings.Default.Save();
+
+            this.running = false;
+            if (this.wrapper != null)
+            {
+                this.wrapper.cleanup();
+            }
+        }
+
+        private void depthMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.DepthMode = this.depthMode.SelectedIndex;
+            Properties.Settings.Default.Save();
+
+            this.running = false;
+            if (this.wrapper != null)
+            {
+                this.wrapper.cleanup();
+            }
         }
     }
 }

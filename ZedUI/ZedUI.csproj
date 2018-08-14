@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{3EBD7B2A-F1A4-4F01-A909-E3F5CDD76AE9}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ZedUI</RootNamespace>
+    <RootNamespace>ZedTester</RootNamespace>
     <AssemblyName>ZedUI</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

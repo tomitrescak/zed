@@ -78,6 +78,7 @@ namespace Core
 		void stop();
 		
 		void reset_background();
+		void load_background();
 	};
 }
 

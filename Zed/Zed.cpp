@@ -22,6 +22,21 @@ bool file_exist(const char *file) {
 
 namespace Core
 {
+	void Zed::load_background() {
+		if (file_exist("left_color.tiff")) {
+			background_color_left_ocv = cv::imread("left_color.tiff", cv::IMREAD_UNCHANGED);
+			background_color_right_ocv = cv::imread("right_color.tiff", cv::IMREAD_UNCHANGED);
+
+			if (cuda) {
+				background_left_cuda.upload(background_color_left_ocv);
+				background_right_cuda.upload(background_color_right_ocv);
+			}
+		}
+		else {
+			this->reset_background();
+		}
+	}
+
 	void Zed::reset_background()
 	{
 		// cuda
@@ -195,7 +210,7 @@ namespace Core
 			}
 
 			if (!init) {
-				this->reset_background();
+				this->load_background();
 
 				this->processor = new FrameProcessor{ new_height, new_width };
 				init = true;
