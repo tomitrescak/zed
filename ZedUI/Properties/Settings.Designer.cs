@@ -130,5 +130,17 @@ namespace ZedTester.Properties {
                 this["Depth"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int Cleanup {
+            get {
+                return ((int)(this["Cleanup"]));
+            }
+            set {
+                this["Cleanup"] = value;
+            }
+        }
     }
 }

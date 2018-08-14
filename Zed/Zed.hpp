@@ -4,12 +4,17 @@
 #include <opencv2/opencv.hpp>
 #include "FrameProcessor.h" 
 
+const int BackgroundFrames = 50;
+
 namespace Core
 {
 	class Zed
 	{
 	public:
 		FrameProcessor * processor;
+		int testFrame;
+		cv::Mat leftTestFrames[BackgroundFrames];
+		cv::Mat rightTestFrames[BackgroundFrames];
 
 		sl::Camera zed;
 		sl::Mat* frame_left_zed;
@@ -56,7 +61,7 @@ namespace Core
 		bool sideBySide = false;
 		bool cuda = false;
 		bool processDepth = false;
-		int config[5] = { 100, 150, 3, 7, 0 };
+		int config[7] = { 25, 150, 3, 7, 0, 1, 1 };
 	private:
 		sl::Mat img;
 		void init_processor();

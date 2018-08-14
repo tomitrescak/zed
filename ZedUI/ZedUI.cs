@@ -56,6 +56,7 @@ namespace ZedTester
             this.resolution.SelectedIndex = Properties.Settings.Default.Resolution;
             this.depthQuality.SelectedIndex = Properties.Settings.Default.DepthQuality;
             this.depthMode.SelectedIndex = Properties.Settings.Default.DepthMode;
+            this.useCuda.Checked = Properties.Settings.Default.Other == 2;
 
             this.startZed();
 
@@ -163,7 +164,7 @@ namespace ZedTester
                 this.finalLeft = finalLeft;
                 this.finalRight = finalRight;
 
-                this.server.ReplaceImages(GetBytes(this.finalLeft), GetBytes(this.finalRight));
+                // this.server.ReplaceImages(GetBytes(this.finalLeft), GetBytes(this.finalRight));
 
                 // calculate FPS
                 if ((DateTime.Now - this.currentTime).TotalMilliseconds > 1000)
@@ -213,7 +214,9 @@ namespace ZedTester
                 Properties.Settings.Default.Depth,
                 Properties.Settings.Default.Erode,
                 Properties.Settings.Default.Dilate,
-                Properties.Settings.Default.Contrast
+                Properties.Settings.Default.Contrast,
+                1,
+                Properties.Settings.Default.Cleanup
             };
 
             Properties.Settings.Default.Save();
@@ -229,6 +232,14 @@ namespace ZedTester
         {
             Properties.Settings.Default.Threshold = this.thresholdTrack.Value;
             this.toolTipThreshold.SetToolTip(this.thresholdTrack, this.thresholdTrack.Value.ToString());
+
+            this.setup();
+        }
+
+        private void cleanupTrackbar_ValueChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Cleanup = this.cleanupTrackbar.Value;
+            this.cleanupToolTip.SetToolTip(this.cleanupTrackbar, this.cleanupTrackbar.Value.ToString());
 
             this.setup();
         }
@@ -292,16 +303,35 @@ namespace ZedTester
             this.Start();
         }
 
+        private void RestartZed()
+        {
+            if (this.wrapper == null)
+            {
+                return;
+            }
+
+            //this.running = false;
+            //this.serverMessage.Text = "Stopping Zed";
+            //new Thread(() =>
+            //{
+            //    Thread.Sleep(1000);
+            //    if (this.wrapper != null)
+            //    {
+            //        this.wrapper.cleanup();
+            //    }
+            //    this.LogServerMessage("Starting Zed");
+            //    Thread.Sleep(1000);
+            //    this.startZed();
+            //}).Start();
+            MessageBox.Show("Please Restart Your Application to Apply Changes");
+        }
+
         private void resolution_SelectedIndexChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Resolution = this.resolution.SelectedIndex;
             Properties.Settings.Default.Save();
 
-            this.running = false;
-            if (this.wrapper != null)
-            {
-                this.wrapper.cleanup();
-            }
+            this.RestartZed();
         }
 
         private void depthQuality_SelectedIndexChanged(object sender, EventArgs e)
@@ -309,11 +339,7 @@ namespace ZedTester
             Properties.Settings.Default.DepthQuality = this.depthQuality.SelectedIndex;
             Properties.Settings.Default.Save();
 
-            this.running = false;
-            if (this.wrapper != null)
-            {
-                this.wrapper.cleanup();
-            }
+            this.RestartZed();
         }
 
         private void depthMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -321,11 +347,15 @@ namespace ZedTester
             Properties.Settings.Default.DepthMode = this.depthMode.SelectedIndex;
             Properties.Settings.Default.Save();
 
-            this.running = false;
-            if (this.wrapper != null)
-            {
-                this.wrapper.cleanup();
-            }
+            this.RestartZed();
+        }
+
+        private void useCuda_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Other = this.useCuda.Checked ? 2 : 0;
+            Properties.Settings.Default.Save();
+
+            this.RestartZed();
         }
     }
 }

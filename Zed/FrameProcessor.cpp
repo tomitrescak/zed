@@ -69,12 +69,27 @@ void FrameProcessor::gpuDifference(int config[], cv::cuda::GpuMat & frame, cv::c
 	// threshold
 	cv::cuda::threshold(maskGpu, maskGpu, config[0], 255, cv::THRESH_BINARY);
 
-	//  dilate erode
-	cv::Ptr<cv::cuda::Filter> dilateFilter = cv::cuda::createMorphologyFilter(cv::MORPH_DILATE, mask.type(), cv::Mat(), cv::Size(-1, -1), config[3]);
-	dilateFilter->apply(maskGpu, maskGpu);
+	// cleanup
 
-	cv::Ptr<cv::cuda::Filter> erodeFilter = cv::cuda::createMorphologyFilter(cv::MORPH_ERODE, mask.type(), cv::Mat(), cv::Size(-1, -1), config[2]);
-	erodeFilter->apply(maskGpu, maskGpu);
+	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2 * config[6] + 1, 2 * config[6] + 1), cv::Point(config[6], config[6]));
+
+	if (config[5] != 0) {
+		//cv::Ptr<cv::cuda::Filter> closeFilterFirst = cv::cuda::createMorphologyFilter(cv::MORPH_CLOSE, mask.type(), kernel, cv::Size(-1, -1), config[5]);
+		//closeFilterFirst->apply(maskGpu, maskGpu);
+		cv::Ptr<cv::cuda::Filter> erodeFilterFirst = cv::cuda::createMorphologyFilter(cv::MORPH_OPEN, mask.type(), kernel, cv::Size(-1, -1), config[5]);
+		erodeFilterFirst->apply(maskGpu, maskGpu);
+	}
+
+	//  dilate erode
+	if (config[3] != 0) {
+		cv::Ptr<cv::cuda::Filter> dilateFilter = cv::cuda::createMorphologyFilter(cv::MORPH_DILATE, mask.type(), kernel, cv::Size(-1, -1), config[3]);
+		dilateFilter->apply(maskGpu, maskGpu);
+	}
+
+	if (config[2] != 0) {
+		cv::Ptr<cv::cuda::Filter> erodeFilter = cv::cuda::createMorphologyFilter(cv::MORPH_ERODE, mask.type(), kernel, cv::Size(-1, -1), config[2]);
+		erodeFilter->apply(maskGpu, maskGpu);
+	}
 
 	zerosGpu.copyTo(resultGpu);
 	frame.copyTo(resultGpu, maskGpu);

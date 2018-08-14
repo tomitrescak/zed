@@ -38,6 +38,11 @@ namespace ZedTester
             this.serverMessage = new System.Windows.Forms.ToolStripStatusLabel();
             this.fpsLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.useCuda = new System.Windows.Forms.CheckBox();
+            this.cleanupLabel = new System.Windows.Forms.Label();
+            this.cleanupTrackbar = new System.Windows.Forms.TrackBar();
+            this.resolution = new System.Windows.Forms.ComboBox();
+            this.resolutionLabel = new System.Windows.Forms.Label();
             this.depthMode = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -60,11 +65,11 @@ namespace ZedTester
             this.erodeToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.dilateToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.contrastToolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.resolution = new System.Windows.Forms.ComboBox();
-            this.resolutionLabel = new System.Windows.Forms.Label();
+            this.cleanupToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.toolStrip2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cleanupTrackbar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.depthTrack)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.contrastTrack)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dilateTrack)).BeginInit();
@@ -85,7 +90,7 @@ namespace ZedTester
             this.toolStripButton1});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(1775, 39);
+            this.toolStrip2.Size = new System.Drawing.Size(1823, 39);
             this.toolStrip2.TabIndex = 0;
             this.toolStrip2.Text = "toolStrip2";
             // 
@@ -105,9 +110,9 @@ namespace ZedTester
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.serverMessage,
             this.fpsLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 834);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 956);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1775, 37);
+            this.statusStrip1.Size = new System.Drawing.Size(1823, 37);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip2";
             // 
@@ -125,6 +130,9 @@ namespace ZedTester
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.useCuda);
+            this.panel2.Controls.Add(this.cleanupLabel);
+            this.panel2.Controls.Add(this.cleanupTrackbar);
             this.panel2.Controls.Add(this.resolution);
             this.panel2.Controls.Add(this.resolutionLabel);
             this.panel2.Controls.Add(this.depthMode);
@@ -142,10 +150,62 @@ namespace ZedTester
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.thresholdTrack);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel2.Location = new System.Drawing.Point(1521, 39);
+            this.panel2.Location = new System.Drawing.Point(1569, 39);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(254, 795);
+            this.panel2.Size = new System.Drawing.Size(254, 917);
             this.panel2.TabIndex = 2;
+            // 
+            // useCuda
+            // 
+            this.useCuda.AutoSize = true;
+            this.useCuda.Location = new System.Drawing.Point(21, 727);
+            this.useCuda.Name = "useCuda";
+            this.useCuda.Size = new System.Drawing.Size(139, 29);
+            this.useCuda.TabIndex = 18;
+            this.useCuda.Text = "Use Cuda";
+            this.useCuda.UseVisualStyleBackColor = true;
+            this.useCuda.CheckedChanged += new System.EventHandler(this.useCuda_CheckedChanged);
+            // 
+            // cleanupLabel
+            // 
+            this.cleanupLabel.AutoSize = true;
+            this.cleanupLabel.Location = new System.Drawing.Point(16, 368);
+            this.cleanupLabel.Name = "cleanupLabel";
+            this.cleanupLabel.Size = new System.Drawing.Size(92, 25);
+            this.cleanupLabel.TabIndex = 17;
+            this.cleanupLabel.Text = "Cleanup";
+            // 
+            // cleanupTrackbar
+            // 
+            this.cleanupTrackbar.Location = new System.Drawing.Point(7, 392);
+            this.cleanupTrackbar.Name = "cleanupTrackbar";
+            this.cleanupTrackbar.Size = new System.Drawing.Size(247, 90);
+            this.cleanupTrackbar.TabIndex = 16;
+            this.cleanupTrackbar.ValueChanged += new System.EventHandler(this.cleanupTrackbar_ValueChanged);
+            // 
+            // resolution
+            // 
+            this.resolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.resolution.FormattingEnabled = true;
+            this.resolution.Items.AddRange(new object[] {
+            "2K",
+            "HD 1980",
+            "HD 720",
+            "VGA"});
+            this.resolution.Location = new System.Drawing.Point(21, 666);
+            this.resolution.Name = "resolution";
+            this.resolution.Size = new System.Drawing.Size(221, 33);
+            this.resolution.TabIndex = 15;
+            this.resolution.SelectedIndexChanged += new System.EventHandler(this.resolution_SelectedIndexChanged);
+            // 
+            // resolutionLabel
+            // 
+            this.resolutionLabel.AutoSize = true;
+            this.resolutionLabel.Location = new System.Drawing.Point(16, 638);
+            this.resolutionLabel.Name = "resolutionLabel";
+            this.resolutionLabel.Size = new System.Drawing.Size(114, 25);
+            this.resolutionLabel.TabIndex = 14;
+            this.resolutionLabel.Text = "Resolution";
             // 
             // depthMode
             // 
@@ -154,7 +214,7 @@ namespace ZedTester
             this.depthMode.Items.AddRange(new object[] {
             "Standard",
             "Fill"});
-            this.depthMode.Location = new System.Drawing.Point(21, 516);
+            this.depthMode.Location = new System.Drawing.Point(21, 590);
             this.depthMode.Name = "depthMode";
             this.depthMode.Size = new System.Drawing.Size(221, 33);
             this.depthMode.TabIndex = 13;
@@ -163,7 +223,7 @@ namespace ZedTester
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(16, 488);
+            this.label6.Location = new System.Drawing.Point(16, 562);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(129, 25);
             this.label6.TabIndex = 12;
@@ -172,7 +232,7 @@ namespace ZedTester
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(16, 408);
+            this.label5.Location = new System.Drawing.Point(16, 482);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(142, 25);
             this.label5.TabIndex = 11;
@@ -188,7 +248,7 @@ namespace ZedTester
             "Medium",
             "Quality",
             "Ultra"});
-            this.depthQuality.Location = new System.Drawing.Point(21, 437);
+            this.depthQuality.Location = new System.Drawing.Point(21, 511);
             this.depthQuality.Name = "depthQuality";
             this.depthQuality.Size = new System.Drawing.Size(221, 33);
             this.depthQuality.TabIndex = 10;
@@ -299,8 +359,8 @@ namespace ZedTester
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.outputViewRight);
-            this.splitContainer2.Size = new System.Drawing.Size(1521, 795);
-            this.splitContainer2.SplitterDistance = 1113;
+            this.splitContainer2.Size = new System.Drawing.Size(1569, 917);
+            this.splitContainer2.SplitterDistance = 1148;
             this.splitContainer2.TabIndex = 3;
             // 
             // outputViewLeft
@@ -309,7 +369,7 @@ namespace ZedTester
             this.outputViewLeft.FunctionalMode = Emgu.CV.UI.ImageBox.FunctionalModeOption.Minimum;
             this.outputViewLeft.Location = new System.Drawing.Point(0, 0);
             this.outputViewLeft.Name = "outputViewLeft";
-            this.outputViewLeft.Size = new System.Drawing.Size(1111, 793);
+            this.outputViewLeft.Size = new System.Drawing.Size(1146, 915);
             this.outputViewLeft.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.outputViewLeft.TabIndex = 2;
             this.outputViewLeft.TabStop = false;
@@ -320,38 +380,14 @@ namespace ZedTester
             this.outputViewRight.FunctionalMode = Emgu.CV.UI.ImageBox.FunctionalModeOption.Minimum;
             this.outputViewRight.Location = new System.Drawing.Point(0, 0);
             this.outputViewRight.Name = "outputViewRight";
-            this.outputViewRight.Size = new System.Drawing.Size(402, 793);
+            this.outputViewRight.Size = new System.Drawing.Size(415, 915);
             this.outputViewRight.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.outputViewRight.TabIndex = 2;
             this.outputViewRight.TabStop = false;
             // 
-            // resolution
-            // 
-            this.resolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.resolution.FormattingEnabled = true;
-            this.resolution.Items.AddRange(new object[] {
-            "2K",
-            "HD 1980",
-            "HD 720",
-            "VGA"});
-            this.resolution.Location = new System.Drawing.Point(21, 592);
-            this.resolution.Name = "resolution";
-            this.resolution.Size = new System.Drawing.Size(221, 33);
-            this.resolution.TabIndex = 15;
-            this.resolution.SelectedIndexChanged += new System.EventHandler(this.resolution_SelectedIndexChanged);
-            // 
-            // resolutionLabel
-            // 
-            this.resolutionLabel.AutoSize = true;
-            this.resolutionLabel.Location = new System.Drawing.Point(16, 564);
-            this.resolutionLabel.Name = "resolutionLabel";
-            this.resolutionLabel.Size = new System.Drawing.Size(114, 25);
-            this.resolutionLabel.TabIndex = 14;
-            this.resolutionLabel.Text = "Resolution";
-            // 
             // ZedUI
             // 
-            this.ClientSize = new System.Drawing.Size(1775, 871);
+            this.ClientSize = new System.Drawing.Size(1823, 993);
             this.Controls.Add(this.splitContainer2);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.statusStrip1);
@@ -364,6 +400,7 @@ namespace ZedTester
             this.statusStrip1.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cleanupTrackbar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.depthTrack)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.contrastTrack)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dilateTrack)).EndInit();
@@ -412,5 +449,9 @@ namespace ZedTester
         private ComboBox depthQuality;
         private ComboBox resolution;
         private Label resolutionLabel;
+        private Label cleanupLabel;
+        private TrackBar cleanupTrackbar;
+        private ToolTip cleanupToolTip;
+        private CheckBox useCuda;
     }
 }

@@ -31,16 +31,16 @@ namespace Core
 				background_left_cuda.upload(background_color_left_ocv);
 				background_right_cuda.upload(background_color_right_ocv);
 			}
+
+			testFrame = BackgroundFrames;
 		}
 		else {
-			this->reset_background();
+			testFrame = 0;
 		}
 	}
 
 	void Zed::reset_background()
 	{
-		// cuda
-
 		if (cuda) {
 			frame_left_cuda.copyTo(background_left_cuda);
 			frame_right_cuda.copyTo(background_right_cuda);
@@ -50,6 +50,52 @@ namespace Core
 
 		frame_color_left_ocv.copyTo(background_color_left_ocv);
 		frame_color_right_ocv.copyTo(background_color_right_ocv);
+
+		// calculate
+
+		std::cout << "Collecting frame ";
+		std::cout << testFrame << std::endl;
+		
+		// cv::cvtColor(background_color_left_ocv, background_color_left_ocv, cv::COLOR_RGBA2RGB);
+		cv::Mat left;
+		cv::Mat right;
+		background_color_left_ocv.convertTo(left, CV_32FC4);
+		background_color_right_ocv.convertTo(right, CV_32FC4);
+		
+		leftTestFrames[testFrame] = left;
+		rightTestFrames[testFrame] = right;
+		
+		testFrame = testFrame + 1;
+
+		if (testFrame == BackgroundFrames) {
+			std::cout << "Calculating background" << std::endl;
+	
+			cv::Mat leftTotal = cv::Mat::zeros(cv::Size(new_width, new_height), leftTestFrames[0].type());
+			cv::Mat rightTotal = cv::Mat::zeros(cv::Size(new_width, new_height), leftTestFrames[0].type());
+			
+			for (int i = 0; i < BackgroundFrames; i++) {
+				leftTotal = leftTotal + leftTestFrames[i];
+				rightTotal = rightTotal + rightTestFrames[i];
+			}
+
+			leftTotal = leftTotal / (float) BackgroundFrames;
+			leftTotal.convertTo(leftTotal, CV_8UC4);
+			leftTotal.copyTo(background_color_left_ocv);
+
+			rightTotal = rightTotal / (float)BackgroundFrames;
+			rightTotal.convertTo(rightTotal, CV_8UC4);
+			rightTotal.copyTo(background_color_right_ocv);
+
+			cv::imshow("LeftTotal", background_color_left_ocv);
+			cv::imshow("RightTotal", background_color_right_ocv);
+		}
+		else {
+			return;
+		}
+
+		// cuda
+
+		
 
 		cv::imwrite("left_color.tiff", background_color_left_ocv);
 		cv::imwrite("right_color.tiff", background_color_right_ocv);
@@ -217,6 +263,11 @@ namespace Core
 				return false;
 			}
 
+			if (testFrame < BackgroundFrames) {
+				reset_background();
+				return false;
+			}
+
 			if (cuda) {
 				if (processDepth && config[0] != 0) {
 					//processor->gpuDifference2(config, frame_left_cuda, background_left_cuda, frame_right_cuda, background_right_cuda, result_left_ocv, result_right_ocv);
@@ -365,8 +416,11 @@ void * get_right(void * zed)
 
 void reset_background(void * zed)
 {
+	
 	Core::Zed* zed_ptr = reinterpret_cast<Core::Zed*>(zed);
-	return zed_ptr->reset_background();
+
+	zed_ptr->testFrame = 0;
+	// zed_ptr->reset_background();
 }
 
 void setup(void * zed, int setup[])
@@ -377,4 +431,6 @@ void setup(void * zed, int setup[])
 	zed_ptr->config[2] = setup[2];
 	zed_ptr->config[3] = setup[3];
 	zed_ptr->config[4] = setup[4];
+	zed_ptr->config[5] = setup[5];
+	zed_ptr->config[6] = setup[6];
 }

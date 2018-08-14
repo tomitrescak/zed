@@ -43,6 +43,9 @@ const int slider_max_30 = 255;
 int depth_slider;
 int erode_slider;
 int dilate_slider;
+int threshold_slider;
+int cleanup_slider;
+int kernel_slider;
 
 Core::Zed *zed_ptr;
 
@@ -76,9 +79,24 @@ void depth_trackbar(int, void*)
 	zed_ptr->config[1] = depth_slider;
 }
 
+void threshold_trackbar(int, void*)
+{
+	zed_ptr->config[0] = threshold_slider;
+}
+
+void cleanup_trackbar(int, void*)
+{
+	zed_ptr->config[5] = cleanup_slider;
+}
+
+void kernel_trackbar(int, void*)
+{
+	zed_ptr->config[6] = kernel_slider;
+}
+
 int main() {
 
-	int setup[] = { RESOLUTION_HD1080, DEPTH_MODE_QUALITY, SENSING_MODE_FILL, 2, 0 };
+	int setup[] = { RESOLUTION_HD1080, DEPTH_MODE_NONE, SENSING_MODE_FILL, 2, 0 };
 	Core::Zed zed{ setup }; // = Core::Zed();
 
 							// rememeber zed
@@ -91,13 +109,21 @@ int main() {
 	cv::namedWindow("Left", cv::WINDOW_AUTOSIZE); // Create Window
 
 												  // depth
-	depth_slider = 100;
-	erode_slider = 7;
-	dilate_slider = 3;
+	depth_slider = zed.config[1];
+	erode_slider = zed.config[3];
+	dilate_slider = zed.config[2];
+	threshold_slider = zed.config[0];
+	kernel_slider = zed.config[6];
+	cleanup_slider = zed.config[5];
 
+
+	cv::createTrackbar("Threshold", "Left", &threshold_slider, slider_max_255, threshold_trackbar);
 	cv::createTrackbar("Depth", "Left", &depth_slider, slider_max_255, depth_trackbar);
+	cv::createTrackbar("Cleanup", "Left", &cleanup_slider, slider_max_30, cleanup_trackbar);
 	cv::createTrackbar("Erode", "Left", &erode_slider, slider_max_30, erode_trackbar);
 	cv::createTrackbar("Dilate", "Left", &dilate_slider, slider_max_30, dilate_trackbar);
+	cv::createTrackbar("Kernel", "Left", &kernel_slider, slider_max_30, kernel_trackbar);
+
 
 	// Loop until 'q' is pressed
 	char key = ' ';
@@ -110,7 +136,12 @@ int main() {
 			cv::imshow("Left", zed.result_left_ocv);
 			//cv::imshow("Right", zed.result_right_ocv);
 
-			cv::waitKey(10);
+			char key = cv::waitKey(10);
+
+			if (key == 'r') {
+				std::cout << "Resetting background" << std::endl;
+				zed.testFrame = 0;
+			}
 			pfps();
 		}
 	}
